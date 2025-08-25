@@ -1,10 +1,10 @@
+# Delete the Book instance
 
-#### **delete.md**
-Open `delete.md` in a text editor and add the following content:
-
-```markdown
-# Delete Book Instance
-
-## Command
 ```python
+from bookshelf.models import Book
+
+book = Book.objects.get(title="Nineteen Eighty-Four")
 book.delete()
+
+# Verify deletion
+Book.objects.all()
