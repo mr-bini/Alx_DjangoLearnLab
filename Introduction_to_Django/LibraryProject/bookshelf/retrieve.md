@@ -1,5 +1,8 @@
+# Retrieve the Book instance
+
 ```python
 from bookshelf.models import Book
-Book.objects.all()
-# <QuerySet [<Book: 1984 by George Orwell (1949)>]>
-```
+
+# Retrieve all books
+books = Book.objects.all()
+books
