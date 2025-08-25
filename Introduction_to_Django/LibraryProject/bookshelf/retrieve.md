@@ -1,8 +1,5 @@
-# Retrieve the Book instance
+# Retrieve Book Instance
 
+## Command
 ```python
-from bookshelf.models import Book
-
-# Retrieve all books
-books = Book.objects.all()
-books
+Book.objects.all()
