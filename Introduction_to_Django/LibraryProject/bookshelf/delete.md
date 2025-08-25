@@ -1,5 +1,5 @@
 # Delete Book Instance
 
-## Command
+## Import Statement
 ```python
-book.delete()
+from bookshelf.models import Book
