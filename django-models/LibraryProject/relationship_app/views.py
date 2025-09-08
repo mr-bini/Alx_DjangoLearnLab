@@ -4,7 +4,8 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from .models import Book, Library
-
+from django.views.generic.detail import DetailView
+from .models import Library
 # --- Function-based view to list all books ---
 def list_books(request):
     books = Book.objects.select_related('author').all()
