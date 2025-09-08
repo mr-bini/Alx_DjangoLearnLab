@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test, per
 from .models import Book, Library
 from django.shortcuts import render
 from .models import Book
+from django.views.generic.detail import DetailView
+from .models import Library
 
 # --- Function-based view to list all books ---
 def list_books(request):
