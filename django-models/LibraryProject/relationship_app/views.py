@@ -4,18 +4,15 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth.decorators import user_passes_test, permission_required
-from .models import Book, Library  # <-- Library imported here
+from .models import Book, Library  # <--- This import is required
 from .forms import BookForm
-
 def list_books(request):
     books = Book.objects.all()
     return render(request, 'relationship_app/list_books.html', {'books': books})
-
 class LibraryDetailView(DetailView):
     model = Library
     template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
-
 def register_view(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
