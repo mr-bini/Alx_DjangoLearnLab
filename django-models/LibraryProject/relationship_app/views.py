@@ -67,19 +67,21 @@ def librarian_view(request):
 def member_view(request):
     return render(request, 'relationship_app/member_view.html')
 
-@permission_required('relationship_app.can_add_book', raise_exception=True)
+@permission_required('relationship_app.canaddbook', raise_exception=True)
 def add_book(request):
     # Your add book logic here
-    return render(request, 'add_book.html')
-@permission_required('relationship_app.can_change_book', raise_exception=True)
+    return render(request, 'relationship_app/add_book.html')
+
+@permission_required('relationship_app.canchangebook', raise_exception=True)
 def edit_book(request, book_id):
-    book = get_object_or_404(Book, pk=pk)
+    book = get_object_or_404(Book, pk=book_id)
     # Your edit book logic here
-    return render(request, 'edit_book.html', {'book': book})
-@permission_required('relationship_app.can_delete_book', raise_exception=True)
+    return render(request, 'relationship_app/edit_book.html', {'book': book})
+
+@permission_required('relationship_app.candeletebook', raise_exception=True)
 def delete_book(request, book_id):
-    book = get_object_or_404(Book, pk=pk)
+    book = get_object_or_404(Book, pk=book_id)
     if request.method == 'POST':
         book.delete()
         return redirect('list_books')
-    return render(request, 'delete_book.html', {'book': book})
+    return render(request, 'relationship_app/delete_book.html', {'book': book})
