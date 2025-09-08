@@ -4,21 +4,18 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth.decorators import user_passes_test, permission_required
-from .models import Book, Library
+from .models import Book, Library  # <-- Library imported here
 from .forms import BookForm
 
-# Function-based view to list all books
 def list_books(request):
-    books = Book.objects.all()  # Required for checker
+    books = Book.objects.all()
     return render(request, 'relationship_app/list_books.html', {'books': books})
 
-# Class-based view to show library details
 class LibraryDetailView(DetailView):
     model = Library
     template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
 
-# Authentication views
 def register_view(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -44,7 +41,6 @@ def login_view(request):
 class CustomLogoutView(LogoutView):
     template_name = 'relationship_app/logout.html'
 
-# Role check functions
 def is_admin(user):
     return hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
 
@@ -54,7 +50,6 @@ def is_librarian(user):
 def is_member(user):
     return hasattr(user, 'userprofile') and user.userprofile.role == 'Member'
 
-# Role-based views
 @user_passes_test(is_admin)
 def admin_view(request):
     return render(request, 'relationship_app/admin_view.html')
@@ -67,7 +62,6 @@ def librarian_view(request):
 def member_view(request):
     return render(request, 'relationship_app/member_view.html')
 
-# Views with permission checks for Book model
 @permission_required('relationship_app.can_add_book')
 def add_book(request):
     if request.method == 'POST':
