@@ -14,5 +14,10 @@ SESSION_COOKIE_SECURE = True
 # Force HTTPS
 SECURE_SSL_REDIRECT = True
 
+# HSTS (HTTP Strict Transport Security)
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
 # Use the custom user model
 AUTH_USER_MODEL = "bookshelf.CustomUser"
