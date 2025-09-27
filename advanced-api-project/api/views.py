@@ -1,24 +1,33 @@
-# views.py
 from rest_framework import generics, permissions
-from rest_framework.response import Response
 from .models import Book
 from .serializers import BookSerializer
 
-class BookUpdateWithoutIDView(generics.UpdateAPIView):
+# List all books
+class BookListView(generics.ListAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [permissions.AllowAny]
+
+# Retrieve single book
+class BookDetailView(generics.RetrieveAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [permissions.AllowAny]
+
+# Create a new book
+class BookCreateView(generics.CreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_object(self):
-        # expects JSON: {"id": 1}
-        book_id = self.request.data.get("id")
-        return Book.objects.get(id=book_id)
-
-class BookDeleteWithoutIDView(generics.DestroyAPIView):
+# Update a book
+class BookUpdateView(generics.UpdateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_object(self):
-        book_id = self.request.data.get("id")
-        return Book.objects.get(id=book_id)
+# Delete a book
+class BookDeleteView(generics.DestroyAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [permissions.IsAuthenticated]
