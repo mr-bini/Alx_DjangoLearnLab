@@ -15,12 +15,21 @@ class BookAPITestCase(APITestCase):
     def test_list_books(self):
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Check the response data
+        self.assertIsInstance(response.data, list)
+        self.assertEqual(response.data[0]['title'], "Test Book")
+
+    def test_retrieve_book(self):
+        response = self.client.get(self.detail_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], "Test Book")
 
     def test_create_book_authenticated(self):
         self.client.login(username="testuser", password="password")
         data = {"title": "New Book", "publication_year": 2022, "author": self.author.id}
         response = self.client.post(self.list_url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['title'], "New Book")  # <-- checks response.data
 
     def test_create_book_unauthenticated(self):
         data = {"title": "Unauthorized Book", "publication_year": 2022, "author": self.author.id}
@@ -32,6 +41,7 @@ class BookAPITestCase(APITestCase):
         data = {"title": "Updated Title", "publication_year": 2021, "author": self.author.id}
         response = self.client.put(self.detail_url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], "Updated Title")  # <-- checks response.data
 
     def test_delete_book(self):
         self.client.login(username="testuser", password="password")
