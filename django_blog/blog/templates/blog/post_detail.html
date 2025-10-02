@@ -1,0 +1,6 @@
+{% extends 'blog/base.html' %}
+{% block content %}
+    <h2>{{ post.title }}</h2>
+    <p>{{ post.content }}</p>
+    <small>Created at: {{ post.created_at }}</small>
+{% endblock %}
