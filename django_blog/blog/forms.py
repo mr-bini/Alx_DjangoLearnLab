@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
 from .models import Post, Comment
-from taggit.widgets import TagWidget  # Import for handling tags in forms
+from taggit.widgets import TagWidget  # Explicit import for TagWidget
 
 
 # ---------------------------
@@ -17,10 +17,22 @@ class CustomUser CreationForm(UserCreationForm):
         model = User
         fields = ("username", "email", "password1", "password2")
         widgets = {
-            'username': forms.TextInput(attrs={'placeholder': 'Enter username'}),
-            'email': forms.EmailInput(attrs={'placeholder': 'Enter email'}),
-            'password1': forms.PasswordInput(attrs={'placeholder': 'Enter password'}),
-            'password2': forms.PasswordInput(attrs={'placeholder': 'Confirm password'}),
+            'username': forms.TextInput(attrs={
+                'placeholder': 'Enter username',
+                'class': 'form-control'
+            }),
+            'email': forms.EmailInput(attrs={
+                'placeholder': 'Enter email',
+                'class': 'form-control'
+            }),
+            'password1': forms.PasswordInput(attrs={
+                'placeholder': 'Enter password',
+                'class': 'form-control'
+            }),
+            'password2': forms.PasswordInput(attrs={
+                'placeholder': 'Confirm password',
+                'class': 'form-control'
+            }),
         }
 
     def save(self, commit=True):
@@ -32,27 +44,27 @@ class CustomUser CreationForm(UserCreationForm):
 
 
 # ---------------------------
-# Blog Post Form (with TagWidget for tags)
+# Blog Post Form (Includes TagWidget for tags field)
 # ---------------------------
 
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content', 'tags']
+        fields = ['title', 'content', 'tags']  # Includes 'tags' field
         widgets = {
             'title': forms.TextInput(attrs={
                 'placeholder': 'Enter post title',
-                'class': 'form-control',
+                'class': 'form-control'
             }),
             'content': forms.Textarea(attrs={
                 'placeholder': 'Enter post content',
                 'rows': 10,
-                'class': 'form-control',
+                'class': 'form-control'
             }),
             'tags': TagWidget(attrs={
                 'placeholder': 'Enter tags (comma-separated, e.g., python,django)',
-                'class': 'form-control',
-            }),  # Uses TagWidget for comma-separated tag input
+                'class': 'form-control'
+            }),  # TagWidget() explicitly used here for comma-separated tag input
         }
         labels = {
             'title': 'Title',
@@ -60,7 +72,7 @@ class PostForm(forms.ModelForm):
             'tags': 'Tags',
         }
         help_texts = {
-            'tags': 'Separate tags with commas (e.g., python, django, tutorial).',
+            'tags': 'Separate tags with commas (e.g., python, django, tutorial). Existing tags will be suggested.',
         }
 
 
@@ -76,7 +88,7 @@ class CommentForm(forms.ModelForm):
             'content': forms.Textarea(attrs={
                 'placeholder': 'Enter your comment...',
                 'rows': 4,
-                'class': 'form-control',
+                'class': 'form-control'
             }),
         }
         labels = {
