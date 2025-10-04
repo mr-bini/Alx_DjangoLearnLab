@@ -10,15 +10,15 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('profile/', views.profile_view, name='profile'),
 
-    # Blog Post URLs
-    path('posts/', views.PostListView.as_view(), name='post_list'),
-    path('posts/new/', views.PostCreateView.as_view(), name='post_create'),
-    path('posts/<int:pk>/', views.PostDetailView.as_view(), name='post_detail'),
-    path('posts/<int:pk>/edit/', views.PostUpdateView.as_view(), name='post_edit'),
-    path('posts/<int:pk>/delete/', views.PostDeleteView.as_view(), name='post_delete'),
+    # Blog Post URLs (using singular 'post/' as per your expectation)
+    path('post/', views.PostListView.as_view(), name='post_list'),  # List all posts
+    path('post/new/', views.PostCreateView.as_view(), name='post_create'),  # Matches your "post/new/"
+    path('post/<int:pk>/', views.PostDetailView.as_view(), name='post_detail'),  # Detail view
+    path('post/<int:pk>/update/', views.PostUpdateView.as_view(), name='post_update'),  # Matches your "post/<int:pk>/update/"
+    path('post/<int:pk>/delete/', views.PostDeleteView.as_view(), name='post_delete'),  # Matches your "post/<int:pk>/delete/"
 
     # Comment URLs
-    path('posts/<int:post_id>/comments/new/', views.add_comment, name='add_comment'),
+    path('post/<int:post_id>/comments/new/', views.add_comment, name='add_comment'),
     path('comments/<int:pk>/edit/', views.CommentUpdateView.as_view(), name='comment_edit'),
     path('comments/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='comment_delete'),
 
@@ -28,4 +28,3 @@ urlpatterns = [
     # Search URL
     path('search/', views.search_posts, name='search_posts'),
 ]
-
