@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Django Blog{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'blog/css/styles.css' %}" />
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="{% url 'blog:post_list' %}">Home</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'blog:post_create' %}">New Post</a>
+                <a href="{% url 'blog:profile' %}">Profile ({{ user.username }})</a>
+                <a href="{% url 'blog:logout' %}">Logout</a>
+            {% else %}
+                <a href="{% url 'blog:login' %}">Login</a>
+                <a href="{% url 'blog:register' %}">Register</a>
+            {% endif %}
+            <form action="{% url 'blog:search_posts' %}" method="get" style="display:inline;">
+                <input type="text" name="q" placeholder="Search posts..." value="{{ request.GET.q|default:'' }}" />
+                <button type="submit">Search</button>
+            </form>
+        </nav>
+    </header>
+
+    <main>
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% block content %}
+        <!-- Page content -->
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; {{ year }} Django Blog</p>
+    </footer>
+</body>
+</html>
