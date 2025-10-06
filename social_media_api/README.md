@@ -1,0 +1,1 @@
+# Social Media API\nA Django REST API with authentication, posts, comments, follows, likes, and notifications.
