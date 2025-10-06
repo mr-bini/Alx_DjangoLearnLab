@@ -1,54 +1,60 @@
-from rest_framework import viewsets, permissions
-from rest_framework.views import APIView
+from django.contrib.auth import authenticate, get_user_model
+from rest_framework import generics, status, permissions, viewsets
 from rest_framework.response import Response
-from django.contrib.auth import get_user_model
+from rest_framework.authtoken.models import Token
 
-from .models import Post, Comment
-from .serializers import PostSerializer, CommentSerializer
+from .serializers import RegisterSerializer
 
-User = get_user_model()
-
-
-# 👇 Post CRUD
-class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all().order_by('-created_at')
-    serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-    def perform_update(self, serializer):
-        if serializer.instance.author != self.request.user:
-            raise PermissionError("You can only edit your own posts.")
-        serializer.save()
-
-    def perform_destroy(self, instance):
-        if instance.author != self.request.user:
-            raise PermissionError("You can only delete your own posts.")
-        instance.delete()
+CustomUser = get_user_model()
 
 
-# 👇 Comment CRUD
-class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all().order_by('-created_at')
-    serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+# 👇 User registration endpoint
+class RegisterView(generics.GenericAPIView):
+    serializer_class = RegisterSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response(
+                {
+                    "message": "User registered successfully.",
+                    "token": token.key,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# 👇 Feed view – posts from followed users
-class FeedView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+# 👇 Login endpoint
+class LoginView(generics.GenericAPIView):
+    def post(self, request, *args, **kwargs):
+        username = request.data.get("username")
+        password = request.data.get("password")
 
-    def get(self, request):
-        user = request.user
-        following_users = user.following.all()  # Users the current user follows
+        user = authenticate(username=username, password=password)
+        if user:
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response(
+                {
+                    "message": "Login successful.",
+                    "token": token.key,
+                },
+                status=status.HTTP_200_OK,
+            )
+        return Response(
+            {"error": "Invalid credentials"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
-        # ✅ Correct query for feed
-        posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
 
-        serializer = PostSerializer(posts, many=True, context={'request': request})
-        return Response(serializer.data)
+# 👇 Authenticated user profile endpoint
+class ProfileView(generics.RetrieveUpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = RegisterSerializer
+    permission_classes = [permissions.IsAuthenticated]  # ✅ required authentication
+
+    def get_object(self):
+        # Returns the currently logged-in user
+        return self.request.user
