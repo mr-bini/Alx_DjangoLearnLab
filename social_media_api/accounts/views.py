@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
-from .models import CustomUser   # Import CustomUser  for explicit use
+from .models import CustomUser    # Import CustomUser  for explicit use
 from .serializers import RegisterSerializer, LoginSerializer, UserProfileSerializer
 
 # Custom permission for owner-only access
@@ -20,7 +20,7 @@ class UserListAPIView(generics.ListAPIView):
     List all users (useful for follow discovery).
     Uses CustomUser .objects.all() explicitly.
     """
-    queryset = CustomUser .objects.all()  # Explicit CustomUser .objects.all()
+    queryset = CustomUser .objects.all()  # Exact: CustomUser .objects.all()
     serializer_class = UserProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -30,7 +30,7 @@ class RegisterView(generics.CreateAPIView):
     Register a new user.
     Inherits from CreateAPIView, which uses GenericAPIView.
     """
-    queryset = CustomUser .objects.all()  # Explicit CustomUser .objects.all() for base queryset
+    queryset = CustomUser .objects.all()  # Exact: CustomUser .objects.all() for base queryset
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -72,7 +72,7 @@ class ProfileView(generics.RetrieveAPIView):
 
     def get_object(self):
         # Explicitly use CustomUser .objects.all() in filter for current user
-        queryset = CustomUser .objects.all()  # Explicit CustomUser .objects.all()
+        queryset = CustomUser .objects.all()  # Exact: CustomUser .objects.all()
         return get_object_or_404(queryset, id=self.request.user.id)
 
 
@@ -86,7 +86,7 @@ class FollowView(GenericAPIView):  # Explicit use of generics.GenericAPIView
 
     def post(self, request, user_id):
         # Use CustomUser .objects.all() to get the target user
-        user_to_follow = get_object_or_404(CustomUser .objects.all(), id=user_id)  # Explicit CustomUser .objects.all()
+        user_to_follow = get_object_or_404(CustomUser .objects.all(), id=user_id)  # Exact: CustomUser .objects.all()
         if request.user == user_to_follow:
             return Response({'error': 'Cannot follow yourself'}, status=status.HTTP_400_BAD_REQUEST)
         if request.user.following.filter(id=user_id).exists():
@@ -108,7 +108,7 @@ class UnfollowView(GenericAPIView):  # Explicit use of generics.GenericAPIView
 
     def post(self, request, user_id):
         # Use CustomUser .objects.all() to get the target user
-        user_to_unfollow = get_object_or_404(CustomUser .objects.all(), id=user_id)  # Explicit CustomUser .objects.all()
+        user_to_unfollow = get_object_or_404(CustomUser .objects.all(), id=user_id)  # Exact: CustomUser .objects.all()
         if not request.user.following.filter(id=user_id).exists():
             return Response({'error': 'Not following'}, status=status.HTTP_400_BAD_REQUEST)
         request.user.following.remove(user_to_unfollow)
