@@ -1,26 +1,20 @@
-from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Post, Like
-from notifications.models import Notification
+from rest_framework import permissions
+from .models import Post
+from .serializers import PostSerializer
 
-class LikePostView(APIView):
+class FeedView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, pk):
-        # ✅ Use DRF's generics.get_object_or_404
-        post = generics.get_object_or_404(Post, pk=pk)
+    def get(self, request):
+        user = request.user
 
-        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        # ✅ Get the users that the current user follows
+        following_users = user.following.all()
 
-        if created:
-            if post.author != request.user:
-                Notification.objects.create(
-                    recipient=post.author,
-                    actor=request.user,
-                    verb="liked your post",
-                    target=post
-                )
-            return Response({"message": "Post liked."}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"message": "You already liked this post."}, status=status.HTTP_200_OK)
+        # ✅ Fetch posts from followed users, newest first
+        posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
+
+        serializer = PostSerializer(posts, many=True, context={'request': request})
+        return Response(serializer.data)
