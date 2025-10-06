@@ -1,23 +1,53 @@
+from rest_framework import viewsets, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import permissions, status
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 
-from .models import Post, Like
+from .models import Post, Comment, Like
+from .serializers import PostSerializer, CommentSerializer
 from notifications.models import Notification
-from .serializers import PostSerializer
 
 User = get_user_model()
 
 
-# 👇 Feed view (already fixed)
+# 👇 Post CRUD
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all().order_by('-created_at')
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def perform_update(self, serializer):
+        if serializer.instance.author != self.request.user:
+            raise PermissionError("You can only edit your own posts.")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if instance.author != self.request.user:
+            raise PermissionError("You can only delete your own posts.")
+        instance.delete()
+
+
+# 👇 Comment CRUD
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all().order_by('-created_at')
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+# 👇 Feed view – posts from followed users
 class FeedView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         user = request.user
-        following_users = user.following.all()
+        following_users = user.following.all()  # Users current user follows
         posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
         serializer = PostSerializer(posts, many=True, context={'request': request})
         return Response(serializer.data)
@@ -32,8 +62,8 @@ class LikePostView(APIView):
         like, created = Like.objects.get_or_create(user=request.user, post=post)  # ✅ Like.objects.get_or_create
 
         if created:
-            # ✅ Notification for the post author
             if post.author != request.user:
+                # ✅ Create notification
                 Notification.objects.create(
                     recipient=post.author,
                     actor=request.user,
