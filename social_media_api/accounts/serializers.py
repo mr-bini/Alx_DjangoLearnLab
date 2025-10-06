@@ -13,18 +13,21 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'password', 'bio', 'profile_picture', 'token']
 
     def create(self, validated_data):
-        # Create user
+        # Create a new user using Django’s built-in create_user method
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email', ''),
             password=validated_data['password']
         )
-        # Optional custom fields
+
+        # Add optional fields
         user.bio = validated_data.get('bio', '')
         user.profile_picture = validated_data.get('profile_picture', None)
         user.save()
 
-        # Create authentication token
-        token, created = Token.objects.get_or_create(user=user)
-        validated_data['token'] = token.key
+        # Create a token for the user
+        token, _ = Token.objects.get_or_create(user=user)
+
+        # Attach the token to the serializer response
+        user.token = token.key
         return user
